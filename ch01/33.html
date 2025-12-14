@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>Fetch Demo</title>
+  <style>
+    .value {
+      font-weight: bold;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Fetch Demo</h1>
+
+  <div class="json-output">
+    <h3>JSON 資料格式</h3>
+    <pre id="jsonOutput">載入中...</pre>
+  </div>
+
+  <script>
+    async function f_test() {
+      try {
+        let url = 'https://api.github.com/repos/woon230530-afk/MoCo1/commits';
+        let response = await fetch(url);
+
+        // 檢查回傳是否成功
+        if (!response.ok) {
+          throw new Error('HTTP 錯誤：' + response.status);
+        }
+
+        let commits = await response.json();
+
+        const jsonOutput = document.getElementById('jsonOutput');
+        jsonOutput.textContent = JSON.stringify(commits[0], null, 2);
+
+      } catch (error) {
+        document.getElementById('jsonOutput').textContent =
+          '發生錯誤：' + error.message;
+      }
+    }
+
+    f_test();
+  </script>
+
+</body>
+</html>
