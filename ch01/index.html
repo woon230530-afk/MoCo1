@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行動即時聊天室</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        #chatbox { height: 300px; border: 1px solid #ccc; background: white; overflow-y: scroll; padding: 10px; margin-bottom: 10px; }
+        .msg { margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .user { font-weight: bold; color: #2196F3; }
+        input { padding: 8px; width: 80%; margin-bottom: 5px; }
+        button { padding: 8px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>即時聊天室系統</h2>
+    
+    <div id="chatbox"></div>
+
+    <input type="text" id="username" placeholder="請輸入暱稱"><br>
+    <input type="text" id="message" placeholder="輸入訊息..."><br>
+    <button onclick="sendMessage()">送出訊息</button>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // --- 請將下方替換成你在 Firebase 取得的個人設定 ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAL8jtzFeFgEw8ZTVLlGTy6V-rqfCMrl1U",
+            authDomain: "test-d1ab6.firebaseapp.com",
+            databaseURL: "https://test-d1ab6-default-rtdb.firebaseio.com",
+            projectId: "test-d1ab6",
+            storageBucket: "test-d1ab6.firebasestorage.app",
+            messagingSenderId: "457420295100",
+            appId: "1:457420295100:web:2885660d8168aa243579b9"
+        };
+        // ----------------------------------------------
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const chatRef = ref(db, 'messages');
+
+        // 送出訊息的功能
+        window.sendMessage = function() {
+            const user = document.getElementById('username').value;
+            const msg = document.getElementById('message').value;
+
+            if (user && msg) {
+                push(chatRef, {
+                    username: user,
+                    text: msg,
+                    time: Date.now()
+                });
+                document.getElementById('message').value = ''; // 清空輸入欄
+            } else {
+                alert("請填寫內容！");
+            }
+        };
+
+        // 接收訊息的功能（即時更新 UI）
+        onChildAdded(chatRef, (data) => {
+            const chatbox = document.getElementById('chatbox');
+            const newMsg = data.val();
+            chatbox.innerHTML += `
+                <div class="msg">
+                    <span class="user">${newMsg.username}:</span> ${newMsg.text}
+                </div>
+            `;
+            chatbox.scrollTop = chatbox.scrollHeight; // 自動捲動到底部
+        });
+    </script>
+</body>
+</html>
